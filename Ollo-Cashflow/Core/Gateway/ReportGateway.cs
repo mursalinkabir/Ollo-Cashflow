@@ -18,6 +18,7 @@ namespace Ollo_Cashflow.Core.Gateway
         SqlConnection connection = new SqlConnection();
         public bool ProcessReportData()
         {
+
            bool isBankdataprocessed= ProcessBankData();
            bool isUnclearedChequeProcessed = ProcessUnclearCheque();
            return isBankdataprocessed;
@@ -48,7 +49,7 @@ ORDER BY Z_Cheques.ChequeNo, Z_Cheques.CheckDate;";
 
                 report.Source = reader["Source_Name"].ToString();
                 report.Amount = Convert.ToDouble(reader["Amount"].ToString());
-                report.Period = reader["CheckDate"].ToString();
+                report.SourcePeriod = reader["CheckDate"].ToString();
                 report.DataType = "UC";
 
                 UnclearedChequeReportList.Add(report);
@@ -75,7 +76,7 @@ ORDER BY Z_Cheques.ChequeNo, Z_Cheques.CheckDate;";
                 command2.Parameters.Add("DType", SqlDbType.NVarChar);
                 command2.Parameters["DType"].Value = report.DataType;
                 command2.Parameters.Add("SourcePeriod", SqlDbType.NVarChar);
-                command2.Parameters["SourcePeriod"].Value = report.Period;
+                command2.Parameters["SourcePeriod"].Value = report.SourcePeriod;
                 command2.Parameters.Add("CPeriod", SqlDbType.NVarChar);
                 command2.Parameters["CPeriod"].Value = cperiod;
 
@@ -104,12 +105,20 @@ ORDER BY Z_Cheques.ChequeNo, Z_Cheques.CheckDate;";
             DateTime now = DateTime.Now;
             string cperiod = now.Year.ToString() + "-" + now.Month.ToString();
             //getting data from one table 
-            string query1 = @"SELECT CashSource,Closing,Period FROM B_BankTB where Period =@CPeriod AND CashSource NOT IN('TDS','VDS');";
+            string query1 = @"SELECT DISTINCT R_BankStat.CashSource, R_BankStat.PaymentDate, Sum(R_BankStat.Dr) AS Dr, Sum(R_BankStat.Cr) AS Cr, (Sum(R_BankStat.Cr) -Sum(R_BankStat.Dr)) AS NetChange, Sum(R_BankStat.NetAMT) AS NetAMT
+FROM R_BankStat 
+inner join (
+    select CashSource, max(PaymentDate) as MaxDate
+    from R_BankStat
+    group by CashSource
+) tm on R_BankStat.CashSource = tm.CashSource and R_BankStat.PaymentDate = tm.MaxDate
+GROUP BY R_BankStat.CashSource, R_BankStat.PaymentDate
+ORDER BY R_BankStat.CashSource, R_BankStat.PaymentDate;";
             SqlCommand command1 = new SqlCommand(query1, connection);
 
-            command1.Parameters.Clear();
-            command1.Parameters.Add("CPeriod", SqlDbType.NVarChar);
-            command1.Parameters["CPeriod"].Value = "2016-08";
+            //command1.Parameters.Clear();
+            //command1.Parameters.Add("CPeriod", SqlDbType.NVarChar);
+            //command1.Parameters["CPeriod"].Value = "2016-08";
             connection.Open();
             SqlDataReader reader = command1.ExecuteReader();
 
@@ -121,8 +130,8 @@ ORDER BY Z_Cheques.ChequeNo, Z_Cheques.CheckDate;";
                 Report report = new Report();
 
                 report.Source = reader["CashSource"].ToString();
-                report.Amount = Convert.ToDouble(reader["Closing"].ToString());
-                report.Period = reader["Period"].ToString();
+                report.Amount = Convert.ToDouble(reader["NetAMT"].ToString());
+                report.SourcePeriod = reader["PaymentDate"].ToString();
                 report.DataType = "BB";
 
                 BankReportList.Add(report);
@@ -152,7 +161,7 @@ ORDER BY Z_Cheques.ChequeNo, Z_Cheques.CheckDate;";
                 command2.Parameters.Add("DType", SqlDbType.NVarChar);
                 command2.Parameters["DType"].Value = report.DataType;
                 command2.Parameters.Add("SourcePeriod", SqlDbType.NVarChar);
-                command2.Parameters["SourcePeriod"].Value = report.Period;
+                command2.Parameters["SourcePeriod"].Value = report.SourcePeriod;
                 command2.Parameters.Add("CPeriod", SqlDbType.NVarChar);
                 command2.Parameters["CPeriod"].Value = cperiod;
 

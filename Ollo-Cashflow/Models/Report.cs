@@ -9,7 +9,7 @@ namespace Ollo_Cashflow.Models
     public class Report
     {
         public String Source { get; set; }
-        public String Period { get; set; }
+        public String SourcePeriod { get; set; }
         public Double Amount { get; set; }
         public String DataType { get; set; }
     }
