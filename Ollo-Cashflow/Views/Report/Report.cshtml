@@ -1,9 +1,43 @@
-﻿@model dynamic
+﻿@using Ollo_Cashflow.Models
+@model dynamic
 
 @{
     ViewBag.Title = "Report";
-    
+    List<Report> reportDataList = ViewBag.GetAllReportData;
 }
 
 <h2>CashFlow Report </h2>
-<h3>@ViewBag.ReportData</h3>
+@{
+    if (ViewBag.isReportDataProcessed)
+    {
+        <h3>Report Data has been Processed</h3>
+        <table style="width: 100%">
+            <tr>
+                <th>Total</th>
+                @{
+                    foreach (Report item in reportDataList)
+                    {
+                        if (item.DataType == "BB")
+                        {
+                            <th>@item.Source</th>
+                        }
+                    }
+                }
+            </tr>
+            <tr>
+                <td>Jill</td>
+                <td>Smith</td>
+                <td>50</td>
+            </tr>
+            <tr>
+                <td>Eve</td>
+                <td>Jackson</td>
+                <td>94</td>
+            </tr>
+        </table>
+    }
+    else
+    {
+        <h3>Report Data has not been Processed  </h3>
+    }
+}

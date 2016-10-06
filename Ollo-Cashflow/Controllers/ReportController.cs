@@ -18,7 +18,12 @@ namespace Ollo_Cashflow.Controllers
 
         public ActionResult Report()
         {
-            ViewBag.ReportData = reportManager.ProcessReportData();
+            ViewBag.isReportDataProcessed = reportManager.ProcessReportData();
+            if (reportManager.ProcessReportData())
+            {
+                ViewBag.GetAllReportData = reportManager.GetallReportdata();
+            }
+            
             return View();
         }
     }

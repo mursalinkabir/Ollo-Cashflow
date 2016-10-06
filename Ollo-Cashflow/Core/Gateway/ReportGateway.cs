@@ -195,5 +195,32 @@ ORDER BY R_BankStat.CashSource, R_BankStat.PaymentDate;";
             }
             return false;
         }
+
+        public List<Report> GetallReportdata()
+        {
+            connection.ConnectionString = connectionString;
+            string query = @"SELECT * FROM TreasuryReport";
+            SqlCommand command = new SqlCommand(query, connection);
+            connection.Open();
+            SqlDataReader reader = command.ExecuteReader();
+
+            List<Report> allReportDataList = new List<Report>();
+
+
+            while (reader.Read())
+            {
+                Report report = new Report();
+
+                report.Source = reader["Source"].ToString();
+                report.Amount = Convert.ToDouble(reader["Amount"].ToString());
+                report.SourcePeriod = reader["SourcePeriod"].ToString();
+                report.DataType = reader["DType"].ToString(); ;
+
+                allReportDataList.Add(report);
+            }
+            reader.Close();
+            connection.Close();
+            return allReportDataList;
+        }
     }
 }
