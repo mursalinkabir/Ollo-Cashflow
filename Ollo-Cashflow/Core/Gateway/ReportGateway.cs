@@ -18,10 +18,26 @@ namespace Ollo_Cashflow.Core.Gateway
         SqlConnection connection = new SqlConnection();
         public bool ProcessReportData()
         {
-
+            bool isTableDataDeleted = TruncateTableData();
            bool isBankdataprocessed= ProcessBankData();
            bool isUnclearedChequeProcessed = ProcessUnclearCheque();
            return isBankdataprocessed;
+        }
+
+        private bool TruncateTableData()
+        {
+            connection.ConnectionString = connectionString;
+            int rowAffected = 0;
+            string query = "TRUNCATE Table TreasuryReport";
+            SqlCommand command = new SqlCommand(query, connection);
+            connection.Open();
+            rowAffected = rowAffected + command.ExecuteNonQuery();
+            connection.Close();
+            if (rowAffected>0)
+            {
+                return true;
+            }
+            return false;
         }
 
         private bool ProcessUnclearCheque()
