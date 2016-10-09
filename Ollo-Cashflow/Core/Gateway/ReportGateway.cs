@@ -65,7 +65,7 @@ ORDER BY Z_Cheques.ChequeNo, Z_Cheques.CheckDate;";
 
                 report.Source = reader["Source_Name"].ToString();
                 report.Amount = Convert.ToDouble(reader["Amount"].ToString());
-                report.SourcePeriod = reader["CheckDate"].ToString();
+                report.SourcePeriod = Convert.ToDateTime(reader["CheckDate"]);
                 report.DataType = "UC";
 
                 UnclearedChequeReportList.Add(report);
@@ -91,10 +91,10 @@ ORDER BY Z_Cheques.ChequeNo, Z_Cheques.CheckDate;";
 
                 command2.Parameters.Add("DType", SqlDbType.NVarChar);
                 command2.Parameters["DType"].Value = report.DataType;
-                command2.Parameters.Add("SourcePeriod", SqlDbType.NVarChar);
+                command2.Parameters.Add("SourcePeriod", SqlDbType.Date);
                 command2.Parameters["SourcePeriod"].Value = report.SourcePeriod;
-                command2.Parameters.Add("CPeriod", SqlDbType.NVarChar);
-                command2.Parameters["CPeriod"].Value = cperiod;
+                command2.Parameters.Add("CPeriod", SqlDbType.DateTime);
+                command2.Parameters["CPeriod"].Value = DateTime.Now;
 
 
                 connection.Open();
@@ -118,8 +118,7 @@ ORDER BY Z_Cheques.ChequeNo, Z_Cheques.CheckDate;";
         {
 
             connection.ConnectionString = connectionString;
-            DateTime now = DateTime.Now;
-            string cperiod = now.Year.ToString() + "-" + now.Month.ToString();
+            
             //getting data from one table 
             string query1 = @"SELECT DISTINCT R_BankStat.CashSource, R_BankStat.PaymentDate, Sum(R_BankStat.Dr) AS Dr, Sum(R_BankStat.Cr) AS Cr, (Sum(R_BankStat.Cr) -Sum(R_BankStat.Dr)) AS NetChange, Sum(R_BankStat.NetAMT) AS NetAMT
 FROM R_BankStat 
@@ -147,7 +146,7 @@ ORDER BY R_BankStat.CashSource, R_BankStat.PaymentDate;";
 
                 report.Source = reader["CashSource"].ToString();
                 report.Amount = Convert.ToDouble(reader["NetAMT"].ToString());
-                report.SourcePeriod = reader["PaymentDate"].ToString();
+                report.SourcePeriod = Convert.ToDateTime(reader["PaymentDate"].ToString());
                 report.DataType = "BB";
 
                 BankReportList.Add(report);
@@ -176,10 +175,10 @@ ORDER BY R_BankStat.CashSource, R_BankStat.PaymentDate;";
 
                 command2.Parameters.Add("DType", SqlDbType.NVarChar);
                 command2.Parameters["DType"].Value = report.DataType;
-                command2.Parameters.Add("SourcePeriod", SqlDbType.NVarChar);
+                command2.Parameters.Add("SourcePeriod", SqlDbType.Date);
                 command2.Parameters["SourcePeriod"].Value = report.SourcePeriod;
-                command2.Parameters.Add("CPeriod", SqlDbType.NVarChar);
-                command2.Parameters["CPeriod"].Value = cperiod;
+                command2.Parameters.Add("CPeriod", SqlDbType.DateTime);
+                command2.Parameters["CPeriod"].Value = DateTime.Now;
 
 
                 connection.Open();
@@ -213,7 +212,7 @@ ORDER BY R_BankStat.CashSource, R_BankStat.PaymentDate;";
 
                 report.Source = reader["Source"].ToString();
                 report.Amount = Convert.ToDouble(reader["Amount"].ToString());
-                report.SourcePeriod = reader["SourcePeriod"].ToString();
+                report.SourcePeriod = Convert.ToDateTime(reader["SourcePeriod"]);
                 report.DataType = reader["DType"].ToString(); ;
 
                 allReportDataList.Add(report);

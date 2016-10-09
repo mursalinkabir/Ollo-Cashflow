@@ -1,19 +1,53 @@
-﻿@using Ollo_Cashflow.Models
+﻿@using System.Globalization
+@using Ollo_Cashflow.Models
 @model dynamic
 
 @{
     ViewBag.Title = "Report";
     List<Report> reportDataList = ViewBag.GetAllReportData;
 }
+<style type="text/css">
+    body {
+        font-family: Tahoma;
+    }
 
-<h2>CashFlow Report </h2>
+    h2 {
+        color: red;
+    }
+
+    table {
+        border: 1px solid black;
+        border-spacing: 0;
+    }
+
+    td {
+         border: 1px solid black;
+        color: green;
+        font-size: .8em;
+        padding: 3px;
+         text-align: center;
+    }
+    th {
+         border: 1px solid black;
+        text-align: center;
+        padding: 3px;
+    }
+    .heading {
+        background: #ccc;
+    }
+</style>
+
+
+
+<h2>CashFlow System </h2>
 @{
     if (ViewBag.isReportDataProcessed)
     {
         <h3>Treasury Report</h3>
         <table style="width: 100%">
             <tr>
-                <th>Total</th>
+                <th></th>
+                <th >Total</th>
                 @{
                     foreach (Report item in reportDataList)
                     {
@@ -25,6 +59,56 @@
                 }
             </tr>
             <tr>
+                <th>Date</th>
+                <th></th>
+                @{
+                    foreach (Report item in reportDataList)
+                    {
+                        if (item.DataType == "BB")
+                        {
+
+
+                            <td>@string.Format("{0:d/M/yy}", item.SourcePeriod)</td>
+                        }
+                    }
+                }
+            </tr>
+
+            <tr>
+                <th>Balance</th>
+                @{
+                    double TotalBalance = 0;
+                    foreach (Report item in reportDataList)
+                    {
+                        if (item.DataType == "BB")
+                        {
+                            TotalBalance = TotalBalance + item.Amount;
+                        }
+                    }
+
+                    <th>@TotalBalance</th>
+                }
+
+                @{
+                    foreach (Report item in reportDataList)
+                    {
+                        if (item.DataType == "BB")
+                        {
+                            <th>@item.Amount</th>
+                        }
+                    }
+                }
+            </tr>
+
+
+
+
+
+
+
+
+
+            @*<tr>
                 <td>Jill</td>
                 <td>Smith</td>
                 <td>50</td>
@@ -33,7 +117,7 @@
                 <td>Eve</td>
                 <td>Jackson</td>
                 <td>94</td>
-            </tr>
+            </tr>*@
         </table>
     <p>Report Generated on @DateTime.Now</p>
     }
