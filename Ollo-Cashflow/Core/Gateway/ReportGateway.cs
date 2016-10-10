@@ -118,17 +118,17 @@ ORDER BY Z_Cheques.ChequeNo, Z_Cheques.CheckDate;";
         {
 
             connection.ConnectionString = connectionString;
-            
-            //getting data from one table 
-            string query1 = @"SELECT DISTINCT R_BankStat.CashSource, R_BankStat.PaymentDate, Sum(R_BankStat.Dr) AS Dr, Sum(R_BankStat.Cr) AS Cr, (Sum(R_BankStat.Cr) -Sum(R_BankStat.Dr)) AS NetChange, Sum(R_BankStat.NetAMT) AS NetAMT
+
+            //getting sum of all transaction for each source
+            string query1 = @"SELECT DISTINCT R_BankStat.CashSource,c.Opening,MAX(R_BankStat.PaymentDate) AS LastDate , Sum(R_BankStat.Dr) AS Dr, Sum(R_BankStat.Cr) AS Cr, (Sum(R_BankStat.Cr) -Sum(R_BankStat.Dr)) AS NetChange, Sum(R_BankStat.NetAMT) AS NetAMT,(Sum(R_BankStat.Cr) -Sum(R_BankStat.Dr)+c.Opening) AS FinalBalance
 FROM R_BankStat 
-inner join (
-    select CashSource, max(PaymentDate) as MaxDate
-    from R_BankStat
-    group by CashSource
-) tm on R_BankStat.CashSource = tm.CashSource and R_BankStat.PaymentDate = tm.MaxDate
-GROUP BY R_BankStat.CashSource, R_BankStat.PaymentDate
-ORDER BY R_BankStat.CashSource, R_BankStat.PaymentDate;";
+INNER JOIN(
+SELECT CashSource,Period,Balance AS Opening FROM B_OpeningsRefreshed a INNER JOIN(SELECT CashSource as CSource,MIN(Period) as Bperiod FROM B_OpeningsRefreshed GROUP BY CashSource)
+b ON a.CashSource=b.CSource AND a.Period= b.Bperiod) c ON R_BankStat.CashSource=c.CashSource
+
+
+GROUP BY R_BankStat.CashSource,c.Opening
+ORDER BY R_BankStat.CashSource;";
             SqlCommand command1 = new SqlCommand(query1, connection);
 
             //command1.Parameters.Clear();
@@ -137,7 +137,7 @@ ORDER BY R_BankStat.CashSource, R_BankStat.PaymentDate;";
             connection.Open();
             SqlDataReader reader = command1.ExecuteReader();
 
-            List<Report> BankReportList = new List<Report>();
+            List<Report> BankBalanceFinalList = new List<Report>();
 
 
             while (reader.Read())
@@ -145,11 +145,13 @@ ORDER BY R_BankStat.CashSource, R_BankStat.PaymentDate;";
                 Report report = new Report();
 
                 report.Source = reader["CashSource"].ToString();
-                report.Amount = Convert.ToDouble(reader["NetAMT"].ToString());
-                report.SourcePeriod = Convert.ToDateTime(reader["PaymentDate"].ToString());
+                double temp = Convert.ToDouble(reader["FinalBalance"].ToString());
+                
+                report.Amount = Math.Round(temp,2);
+                report.SourcePeriod = Convert.ToDateTime(reader["LastDate"].ToString());
                 report.DataType = "BB";
 
-                BankReportList.Add(report);
+                BankBalanceFinalList.Add(report);
             }
             reader.Close();
             connection.Close();
@@ -158,7 +160,7 @@ ORDER BY R_BankStat.CashSource, R_BankStat.PaymentDate;";
 
 
             int rowAffected=0;
-            foreach (Report report in BankReportList)
+            foreach (Report report in BankBalanceFinalList)
             {
 
 

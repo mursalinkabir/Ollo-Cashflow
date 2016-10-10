@@ -31,9 +31,14 @@
          border: 1px solid black;
         text-align: center;
         padding: 3px;
+        font-size: .8em;
+        
     }
     .heading {
         background: #ccc;
+    }
+    .container {
+        width: 1250px;
     }
 </style>
 
@@ -68,7 +73,7 @@
                         {
 
 
-                            <td>@string.Format("{0:d/M/yy}", item.SourcePeriod)</td>
+                            <td>@string.Format("{0:d/M/yyyy}", item.SourcePeriod)</td>
                         }
                     }
                 }
@@ -86,7 +91,9 @@
                         }
                     }
 
-                    <th>@TotalBalance</th>
+                    //<th>@TotalBalance</th>
+                   <th>@String.Format(new CultureInfo("bn-BD"), "{0:C}", @TotalBalance)</th> 
+                    
                 }
 
                 @{
@@ -94,7 +101,8 @@
                     {
                         if (item.DataType == "BB")
                         {
-                            <th>@item.Amount</th>
+                            //<th>@item.Amount</th>
+                            <th>@String.Format(new CultureInfo("bn-BD"), "{0:C}", @item.Amount)</th>
                         }
                     }
                 }
