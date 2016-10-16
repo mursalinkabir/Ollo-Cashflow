@@ -3,8 +3,9 @@
 @model dynamic
 
 @{
-    ViewBag.Title = "Report";
+    
     List<Report> reportDataList = ViewBag.GetAllReportData;
+     Layout = "";
 }
 <style type="text/css">
     body {
@@ -21,22 +22,24 @@
     }
 
     td {
-         border: 1px solid black;
+        border: 1px solid black;
         color: green;
         font-size: .8em;
         padding: 3px;
-         text-align: center;
+        text-align: center;
     }
+
     th {
-         border: 1px solid black;
+        border: 1px solid black;
         text-align: center;
         padding: 3px;
         font-size: .8em;
-        
     }
+
     .heading {
         background: #ccc;
     }
+
     .container {
         width: 1250px;
     }
@@ -44,16 +47,14 @@
 
 
 
-<h2>CashFlow System </h2>
 @{
-    if (ViewBag.isReportDataProcessed)
-    {
+   
         <h3>Treasury Report</h3>
-    <table style="width: 100%" id="tbl" border="1" runat="server">
-        <tr>
-            <th></th>
-            <th>Total</th>
-            @{
+        <table style="width: 100%" id="tbl" border="1" runat="server">
+            <tr>
+                <th></th>
+                <th>Total</th>
+                @{
         foreach (Report item in reportDataList)
         {
             if (item.DataType == "BB")
@@ -61,12 +62,12 @@
                 <th>@item.Source</th>
             }
         }
-            }
-        </tr>
-        <tr>
-            <th>Date</th>
-            <th></th>
-            @{
+                }
+            </tr>
+            <tr>
+                <th>Date</th>
+                <th></th>
+                @{
         foreach (Report item in reportDataList)
         {
             if (item.DataType == "BB")
@@ -76,12 +77,12 @@
                 <td>@string.Format("{0:d/M/yyyy}", item.SourcePeriod)</td>
             }
         }
-            }
-        </tr>
+                }
+            </tr>
 
-        <tr>
-            <th>Balance</th>
-            @{
+            <tr>
+                <th>Balance</th>
+                @{
         double TotalBalance = 0;
         foreach (Report item in reportDataList)
         {
@@ -94,9 +95,9 @@
         //<th>@TotalBalance</th>
         <th>@String.Format(new CultureInfo("bn-BD"), "{0:C}", @TotalBalance)</th>
 
-            }
+                }
 
-            @{
+                @{
         foreach (Report item in reportDataList)
         {
             if (item.DataType == "BB")
@@ -105,33 +106,28 @@
                 <th>@String.Format(new CultureInfo("bn-BD"), "{0:C}", @item.Amount)</th>
             }
         }
-            }
-        </tr>
-
-
-
-
-
-
-
-
-
-        @*<tr>
-                <td>Jill</td>
-                <td>Smith</td>
-                <td>50</td>
+                }
             </tr>
-            <tr>
-                <td>Eve</td>
-                <td>Jackson</td>
-                <td>94</td>
-            </tr>*@
-    </table>
-    <p>Report Generated on @DateTime.Now</p>
-    }
-    else
-    {
-        <h3>Report Data has not been Processed  </h3>
-    }
+
+
+
+
+
+
+
+
+
+            @*<tr>
+                    <td>Jill</td>
+                    <td>Smith</td>
+                    <td>50</td>
+                </tr>
+                <tr>
+                    <td>Eve</td>
+                    <td>Jackson</td>
+                    <td>94</td>
+                </tr>*@
+        </table>
+        <p>Report Generated on @DateTime.Now</p>
+   
 }
-@Html.ActionLink("Export to Excel","Export","Report")
