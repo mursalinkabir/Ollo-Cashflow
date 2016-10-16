@@ -46,10 +46,18 @@ namespace Ollo_Cashflow.Core.Gateway
             DateTime now = DateTime.Now;
             string cperiod = now.Year.ToString() + "-" + now.Month.ToString();
             //getting data from one table 
-            string query1 = @"SELECT Z_Cheques.ChequeNo, R_BankStat.CheckNo, Z_Cheques.CheckDate, Z_Cheques.Amount, Z_Cheques.Counterparty, Z_Cheques.Source_Name, R_BankStat.CashSource
+            string query1 = @"SELECT CS.Source_Name,ISNULL(Sum(UC.Amount) ,0) AS Amount,ISNULL(MAX(UC.CheckDate),GETDATE()) as CheckDate
+FROM dbo.D_CashSources AS CS
+LEFT JOIN 
+(
+SELECT   Z_Cheques.Source_Name AS CashSource,SUM(Z_Cheques.Amount) AS Amount,MAX(Z_Cheques.CheckDate) as CheckDate
 FROM R_BankStat RIGHT JOIN Z_Cheques ON (R_BankStat.CashSource = Z_Cheques.Source_Name) AND (R_BankStat.CheckNo = Z_Cheques.ChequeNo)
 WHERE (((R_BankStat.CheckNo) Is Null))
-ORDER BY Z_Cheques.ChequeNo, Z_Cheques.CheckDate;";
+GROUP BY Z_Cheques.Source_Name
+) AS UC
+ ON  (CS.Source_Name = UC.CashSource)
+GROUP BY CS.Source_Name;
+";
             SqlCommand command1 = new SqlCommand(query1, connection);
 
             

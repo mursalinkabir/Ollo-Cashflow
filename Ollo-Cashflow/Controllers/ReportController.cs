@@ -43,7 +43,11 @@ namespace Ollo_Cashflow.Controllers
 
         public ActionResult Export()
         {
-            ViewBag.GetAllReportData = reportManager.GetallReportdata();
+            ViewBag.isReportDataProcessed = reportManager.ProcessReportData();
+            if (reportManager.ProcessReportData())
+            {
+                ViewBag.GetAllReportData = reportManager.GetallReportdata();
+            }
            Response.AddHeader("Content-Type", "application/vnd.ms-excel");
            Response.AddHeader("Content-Disposition", "attachment; filename=TreasuryReport.xls");
             Response.ContentEncoding = Encoding.UTF8;
